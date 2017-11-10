@@ -1,7 +1,8 @@
 // Map each class of actor to a character
 var actorChars = {
   "@": Player,
-  "o": Coin // A coin will wobble up and down
+  "o": Coin, // A coin will wobble up and down
+  "m": Money
 };
 
 function Level(plan) {
@@ -77,10 +78,18 @@ Player.prototype.type = "player";
 // Add a new actor type as a class
 function Coin(pos) {
   this.basePos = this.pos = pos.plus(new Vector(0.2, 0.1));
-  this.size = new Vector(0.6, 0.6);
+  this.size = new Vector(0.3, 0.1);
   // Make it go back and forth in a sine wave.
   this.wobble = Math.random() * Math.PI * 2;
 }
+// NEW ONE 
+function Money(pos){
+  this.basePos = this.pos = pos.plus(new Vector (0.2,0.1));
+  this.size = new Vector(0.9, 0.9);
+  this.wobble = Math.random() * Math.PI * 2;
+}
+// NEW ONE
+Money.prototype.type = "money";
 Coin.prototype.type = "coin";
 
 // Helper function to easily create an element of a type provided 
@@ -239,8 +248,15 @@ Level.prototype.animate = function(step, keys) {
 var maxStep = 0.05;
 
 var wobbleSpeed = 8, wobbleDist = 0.07;
-
 Coin.prototype.act = function(step) {
+  this.wobble += step * wobbleSpeed;
+  var wobblePos = Math.sin(this.wobble) * wobbleDist;
+  this.pos = this.basePos.plus(new Vector(0, wobblePos));
+};
+
+//NEW ONE
+var wobbleSpeed = 8, wobbleDist = 1.07;
+Money.prototype.act = function(step){
   this.wobble += step * wobbleSpeed;
   var wobblePos = Math.sin(this.wobble) * wobbleDist;
   this.pos = this.basePos.plus(new Vector(0, wobblePos));
@@ -267,7 +283,7 @@ Player.prototype.moveX = function(step, level, keys) {
 };
 
 var gravity = 30;
-var jumpSpeed = 17;
+var jumpSpeed = 21;
 
 Player.prototype.moveY = function(step, level, keys) {
   // Accelerate player downward (always)
@@ -284,10 +300,6 @@ Player.prototype.moveY = function(step, level, keys) {
       this.speed.y = 0;
   } else {
     this.pos = newPos;
-
-  }
-  if (obstractle =="lava"){
-    location.reload();
   }
 };
 
@@ -301,7 +313,7 @@ Player.prototype.act = function(step, level, keys) {
 };
 
 Level.prototype.playerTouched = function(type, actor) {
-  if (type == "coin") {
+  if (type == "coin" || type == "money") {
     this.actors = this.actors.filter(function(other) {
       return other != actor;
     });
